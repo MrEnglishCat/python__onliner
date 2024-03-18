@@ -1,6 +1,6 @@
 import psycopg2
 import environs
-from .base_parser import BaseParser
+from base_parser import BaseParser
 
 env = environs.Env()
 env.read_env('.env')
@@ -40,3 +40,4 @@ class ParserOnlinerPostgres(BaseParser):
             print('ERROR CONNECTION TO DB!')
 
 
+parser = ParserOnlinerPostgres().run()
