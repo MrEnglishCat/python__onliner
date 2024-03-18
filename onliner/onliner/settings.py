@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'notebook',
     'django_filters',
+    'rest_framework',
     'drf_yasg',
 ]
 

@@ -1,11 +1,11 @@
 from django.contrib.auth.models import Group, User
 from rest_framework import serializers
-from .models import OnlinerMobel
+from .models import OnlinerModel
 
 
 class UserBaseSerializer(serializers.ModelSerializer):
     class Meta:
-        model = OnlinerMobel
+        model = OnlinerModel
         fields = (
             'id',
             'url',

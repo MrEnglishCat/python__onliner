@@ -2,7 +2,7 @@ from django.db import models
 
 # Create your models here.
 
-class OnlinerMobel(models.Model):
+class OnlinerModel(models.Model):
     url = models.URLField(verbose_name='Ссылка на товар')
     notebook_name = models.TextField(verbose_name='Название товара', null=True)
     notebook_description = models.TextField(verbose_name='Описание товара', null=True)
@@ -20,3 +20,5 @@ class OnlinerMobel(models.Model):
         verbose_name='Дата внесения последних изменений'
     )
 
+    def __str__(self):
+        return f"{self.notebook_name} | {self.notebook_price}"

@@ -1,13 +1,13 @@
 from django.shortcuts import render, HttpResponse
 from .parser import run
 from rest_framework import viewsets, filters
-from .models import OnlinerMobel
+from .models import OnlinerModel
 from .serializers import UserBaseSerializer
 # Create your views here.
 
 
 class BaseAPIViewSet(viewsets.ModelViewSet):
-    queryset = OnlinerMobel.objects.all()
+    queryset = OnlinerModel.objects.all()
     serializer_class = UserBaseSerializer
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     search_fields = (

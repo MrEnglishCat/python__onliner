@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import OnlinerMobel
+from .models import OnlinerModel
 # Register your models here.
 
-admin.register(OnlinerMobel)
+admin.site.register(OnlinerModel)
