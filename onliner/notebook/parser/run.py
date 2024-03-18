@@ -1,6 +1,6 @@
 import psycopg2
 import environs
-from base_parser import BaseParser
+from .base_parser import BaseParser
 
 env = environs.Env()
 env.read_env('.env')
@@ -23,7 +23,7 @@ class ParserOnlinerPostgres(BaseParser):
         if connection:
             cursor = connection.cursor()
             cursor.execute(
-                f"""CREATE TABLE IF NOT EXISTS notebook (
+                f"""CREATE TABLE IF NOT EXISTS notebook_onlinermobel (
                     id serial PRIMARY KEY,
                     url TEXT,
                     notebook_name TEXT,
@@ -40,4 +40,3 @@ class ParserOnlinerPostgres(BaseParser):
             print('ERROR CONNECTION TO DB!')
 
 
-parser = ParserOnlinerPostgres().run()
