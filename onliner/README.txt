@@ -7,3 +7,7 @@
     DB_PASSWORD=<пароль пользователя для подключения к БД>
     DB_HOST=localhost
     DB_PORT=5432
+
+
+2) Список зависимостей в "requirements.txt"
+    python -m pip install -r requirements.txt
