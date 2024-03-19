@@ -6,6 +6,7 @@ class OnlinerModel(models.Model):
     url = models.URLField(verbose_name='Ссылка на товар')
     notebook_name = models.TextField(verbose_name='Название товара', null=True)
     notebook_description = models.TextField(verbose_name='Описание товара', null=True)
+    is_discontinued = models.BooleanField(verbose_name='Товар снят с производства',blank=True)
     notebook_price = models.DecimalField(max_digits=20, decimal_places=4, verbose_name='Цена товара(от)', null=True)
     notebook_all_price_link = models.URLField(verbose_name='Ccылка на всех продавцов', null=True)
     parse_datetime = models.DateTimeField(

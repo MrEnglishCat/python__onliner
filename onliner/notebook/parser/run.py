@@ -23,12 +23,13 @@ class ParserOnlinerPostgres(BaseParser):
         if connection:
             cursor = connection.cursor()
             cursor.execute(
-                f"""CREATE TABLE IF NOT EXISTS notebook_onlinermobel (
+                f"""CREATE TABLE IF NOT EXISTS notebook_onlinermodel (
                     id serial PRIMARY KEY,
                     url TEXT,
                     notebook_name TEXT,
                     notebook_description TEXT,
                     notebook_price DECIMAL,
+                    is_discontinued BOOLEAN,
                     notebook_all_price_link TEXT,
                     parse_datetime TIMESTAMPTZ NOT NULL,
                     update_datetime TIMESTAMPTZ

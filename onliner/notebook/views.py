@@ -1,4 +1,4 @@
-from django.shortcuts import render, HttpResponse
+from django.shortcuts import HttpResponse
 from .parser import run
 from rest_framework import viewsets, filters
 from .models import OnlinerModel
