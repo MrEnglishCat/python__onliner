@@ -62,12 +62,12 @@ class BaseParser(ABC):
             )
             connection.commit()
             type(self).__ERRORS_SUCCESS.append(
-                f'[PAGE {type(self).__PAGE_COUNTER}] {type(self).__ALERTS.get("info")} {type(self).__ALERTS.get("db").get("success")}'
+                f'[PAGE {type(self).__PAGE_COUNTER-1}] [{type(self).__ALERTS.get("info")}] {type(self).__ALERTS.get("db").get("success")}'
             )
         except:
             print(data)
             type(self).__ERRORS_SUCCESS.append(
-                f'[PAGE {type(self).__PAGE_COUNTER}] {type(self).__ALERTS.get("error")} {type(self).__ALERTS.get("db").get("error")}'
+                f'[PAGE {type(self).__PAGE_COUNTER-1}] {type(self).__ALERTS.get("error")} {type(self).__ALERTS.get("db").get("error")}'
             )
 
     def get_urls_from_page(self, url: str) -> list:
@@ -109,7 +109,7 @@ class BaseParser(ABC):
                     is_discontinued = False
                 else:
                     type(self).__ERRORS_SUCCESS.append(
-                        f"[PAGE {type(self).__PAGE_COUNTER}] [{type(self).__ALERTS.get('info')} {__counter}/{__total_counter}] {type(self).__ALERTS.get('message_parser').get('False')}"
+                        f"[PAGE {type(self).__PAGE_COUNTER-1}] [{type(self).__ALERTS.get('info')} {__counter}/{__total_counter}] {type(self).__ALERTS.get('message_parser').get('False')}"
                     )
                     type(self).__IS_ALL_DATA_COLLECTED = True
                     notebook_price = '0'
@@ -126,13 +126,13 @@ class BaseParser(ABC):
                         'is_discontinued': is_discontinued
                     }
                 )
-                __counter += 1
+
                 if not type(self).__IS_ALL_DATA_COLLECTED:
                     type(self).__ERRORS_SUCCESS.append(
-                        f"[PAGE {type(self).__PAGE_COUNTER}] [{type(self).__ALERTS.get('info')} {__counter}/{__total_counter}] {type(self).__ALERTS.get('message_parser').get('True')}"
+                        f"[PAGE {type(self).__PAGE_COUNTER-1}] [{type(self).__ALERTS.get('info')} {__counter}/{__total_counter}] {type(self).__ALERTS.get('message_parser').get('True')}"
                     )
                 type(self).__IS_ALL_DATA_COLLECTED = False
-
+                __counter += 1
             except Exception as e:
                 result.append(
                     {
@@ -145,8 +145,10 @@ class BaseParser(ABC):
                     }
                 )
                 type(self).__ERRORS_SUCCESS.append(
-                    f"[PAGE {type(self).__PAGE_COUNTER}] [{type(self).__ALERTS.get('error')} {__counter}/{__total_counter}] {type(self).__ALERTS.get('message_parser').get('error')}"
+                    f"[PAGE {type(self).__PAGE_COUNTER-1}] [{type(self).__ALERTS.get('error')} {__counter}/{__total_counter}] {type(self).__ALERTS.get('message_parser').get('error')}"
                 )
+                __counter += 1
+
         return result
 
     @staticmethod
@@ -181,11 +183,19 @@ class BaseParser(ABC):
         else:
             return False
 
+    def write_to_json(self, filepath:str, filename:str, data):
+        import json, os
+        if not os.path.exists(filepath):
+            os.makedirs(filepath)
+        with open(f'{filepath}/{filename}', 'w', encoding='utf-8-sig') as f:
+            json.dump(data, f, ensure_ascii=True, indent=3)
+
     def run(self):
         import json
         urls_from_page = self.get_urls_from_page(self.MAIN_URL)
         for page, urls in urls_from_page.items():
             raw_data = self.get_data_from_page(urls)
+            self.write_to_json(f'notebook/parser/data/json', f'{type(self).__PAGE_COUNTER-1}_data.json', raw_data)
             data_for_insert_to_db = self._parse_data_result(raw_data)
             connection = self.connect_to_db()
             self.create_table_db(connection)
