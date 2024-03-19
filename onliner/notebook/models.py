@@ -22,3 +22,15 @@ class OnlinerModel(models.Model):
 
     def __str__(self):
         return f"{self.notebook_name} | {self.notebook_price}"
+
+    def get_absolute_url(self):
+        return self.url
+
+    def get_str(self):
+        return f"{self.notebook_price}"
+
+    class Meta:
+        verbose_name = 'Ноутбук'
+        verbose_name_plural = 'Ноутбуки'
+        ordering = ('notebook_price',)
+
