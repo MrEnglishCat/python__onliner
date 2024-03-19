@@ -12,6 +12,7 @@ class UserAdminModel(admin.ModelAdmin):
             'notebook_name',
             'notebook_description',
             'notebook_price',
+            'is_discontinued',
             'notebook_all_price_link',
             'parse_datetime',
             'update_datetime',
@@ -20,6 +21,7 @@ class UserAdminModel(admin.ModelAdmin):
         'notebook_price',
         'parse_datetime',
         'update_datetime',
+        'is_discontinued',
     )
     list_per_page = 25
     list_max_show_all = 5000
