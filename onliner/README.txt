@@ -20,3 +20,14 @@
 
             #  break ниже для парсинга одной страницы
             break
+
+4) Есть API и 1 ссылка для запуска парсера
+                Parse:
+        start_parser/
+
+                API:
+        api/swagger<format>/ --- swagger
+        api/swagger/ --- swagger
+        api/redoc/ --- документация от swagger
+                Admin:
+        admin/ --- админка
