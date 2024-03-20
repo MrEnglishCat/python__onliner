@@ -1,5 +1,6 @@
 import json
-import time
+import os
+from copy import deepcopy
 from pprint import pprint
 
 import requests
@@ -11,7 +12,7 @@ from bs4 import BeautifulSoup
 class BaseParser(ABC):
     MAIN_URL = 'https://catalog.onliner.by/notebook'
     __PAGE_COUNTER = 1
-    # __PAGE_COUNTER = 219
+    __LIMIT_PAGE_COUNTER = 2
     __PATTERN_DATETIME = r'%Y-%m-%d %H:%M %z'
     __TIMEZONE_OFFSET = 3
     __ERRORS_SUCCESS = []
@@ -51,7 +52,7 @@ class BaseParser(ABC):
     def get_errors(self):
         return type(self).__ERRORS_SUCCESS
 
-    def insert_to_db(self, connection, data):
+    def insert_to_db(self, connection, data, page_number:int):
         cursor = connection.cursor()
         try:
             cursor.execute(
@@ -62,12 +63,12 @@ class BaseParser(ABC):
             )
             connection.commit()
             type(self).__ERRORS_SUCCESS.append(
-                f'[PAGE {type(self).__PAGE_COUNTER-1}] [{type(self).__ALERTS.get("info")}] {type(self).__ALERTS.get("db").get("success")}'
+                f'[PAGE {page_number}] [{type(self).__ALERTS.get("info")}] {type(self).__ALERTS.get("db").get("success")}'
             )
         except:
             print(data)
             type(self).__ERRORS_SUCCESS.append(
-                f'[PAGE {type(self).__PAGE_COUNTER-1}] {type(self).__ALERTS.get("error")} {type(self).__ALERTS.get("db").get("error")}'
+                f'[PAGE {page_number}] {type(self).__ALERTS.get("error")} {type(self).__ALERTS.get("db").get("error")}'
             )
 
     def get_urls_from_page(self, url: str) -> list:
@@ -80,18 +81,18 @@ class BaseParser(ABC):
             else:
                 soup.find_all('div', class_='catalog-form__offers-unit catalog-form__offers-unit_primary')
                 page_links = soup.find_all('a', class_='catalog-form__preview')
-                type(self).__PAGE_COUNTER += 1
                 result.update(
                     {
-                        type(self).__PAGE_COUNTER: page_links
+                        deepcopy(type(self).__PAGE_COUNTER): page_links
                     }
                 )
-            #  break ниже для парсинга одной страницы
-            break
-        # return page_links
+            #  break ниже для парсинга указанного количества страниц
+            if type(self).__PAGE_COUNTER == type(self).__LIMIT_PAGE_COUNTER:
+                break
+            type(self).__PAGE_COUNTER += 1
         return result
 
-    def get_data_from_page(self, urls: list):
+    def get_data_from_page(self, urls: list, page_number:int):
         result = []
         __counter = 1
         __total_counter = len(urls)
@@ -109,7 +110,7 @@ class BaseParser(ABC):
                     is_discontinued = False
                 else:
                     type(self).__ERRORS_SUCCESS.append(
-                        f"[PAGE {type(self).__PAGE_COUNTER-1}] [{type(self).__ALERTS.get('info')} {__counter}/{__total_counter}] {type(self).__ALERTS.get('message_parser').get('False')}"
+                        f"[PAGE {page_number}] [{type(self).__ALERTS.get('info')} {__counter}/{__total_counter}] {type(self).__ALERTS.get('message_parser').get('False')}"
                     )
                     type(self).__IS_ALL_DATA_COLLECTED = True
                     notebook_price = '0'
@@ -129,7 +130,7 @@ class BaseParser(ABC):
 
                 if not type(self).__IS_ALL_DATA_COLLECTED:
                     type(self).__ERRORS_SUCCESS.append(
-                        f"[PAGE {type(self).__PAGE_COUNTER-1}] [{type(self).__ALERTS.get('info')} {__counter}/{__total_counter}] {type(self).__ALERTS.get('message_parser').get('True')}"
+                        f"[PAGE {page_number}] [{type(self).__ALERTS.get('info')} {__counter}/{__total_counter}] {type(self).__ALERTS.get('message_parser').get('True')}"
                     )
                 type(self).__IS_ALL_DATA_COLLECTED = False
                 __counter += 1
@@ -145,7 +146,7 @@ class BaseParser(ABC):
                     }
                 )
                 type(self).__ERRORS_SUCCESS.append(
-                    f"[PAGE {type(self).__PAGE_COUNTER-1}] [{type(self).__ALERTS.get('error')} {__counter}/{__total_counter}] {type(self).__ALERTS.get('message_parser').get('error')}"
+                    f"[PAGE {page_number}] [{type(self).__ALERTS.get('error')} {__counter}/{__total_counter}] {type(self).__ALERTS.get('message_parser').get('error')}"
                 )
                 __counter += 1
 
@@ -184,7 +185,6 @@ class BaseParser(ABC):
             return False
 
     def write_to_json(self, filepath:str, filename:str, data):
-        import json, os
         if not os.path.exists(filepath):
             os.makedirs(filepath)
         with open(f'{filepath}/{filename}', 'w', encoding='utf-8-sig') as f:
@@ -194,10 +194,11 @@ class BaseParser(ABC):
         import json
         urls_from_page = self.get_urls_from_page(self.MAIN_URL)
         for page, urls in urls_from_page.items():
-            raw_data = self.get_data_from_page(urls)
-            self.write_to_json(f'notebook/parser/data/json', f'{type(self).__PAGE_COUNTER-1}_data.json', raw_data)
+            raw_data = self.get_data_from_page(urls, page)
+
+            self.write_to_json(f'notebook/parser/data/json', f'{page}_data.json', raw_data)
             data_for_insert_to_db = self._parse_data_result(raw_data)
             connection = self.connect_to_db()
             self.create_table_db(connection)
-            self.insert_to_db(connection, data_for_insert_to_db)
+            self.insert_to_db(connection, data_for_insert_to_db, page)
         return self.get_errors
