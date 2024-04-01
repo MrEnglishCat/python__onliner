@@ -7,15 +7,17 @@ from .serializers import UserBaseSerializer
 
 
 class BaseAPIViewSet(viewsets.ModelViewSet):
+
     queryset = OnlinerModel.objects.all()
     serializer_class = UserBaseSerializer
-    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    filter_backends = (filters.SearchFilter, filters.OrderingFilter)
     search_fields = (
             'id',
             'notebook_price',
         )
     ordering_fields = (
             'id',
+            'is_sold',
             'url',
             'notebook_name',
             'notebook_description',

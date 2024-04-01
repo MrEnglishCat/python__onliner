@@ -8,6 +8,7 @@ class UserBaseSerializer(serializers.ModelSerializer):
         model = OnlinerModel
         fields = (
             'id',
+            'is_sold',
             'url',
             'notebook_name',
             'notebook_description',

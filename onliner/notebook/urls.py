@@ -8,5 +8,6 @@ BASE_PATH_API = 'api/custom'
 
 urlpatterns = [
     path('start_parser', views.start),
-    path(f'{BASE_PATH_API}/', include(router.urls))
+    path(f'{BASE_PATH_API}/', include(router.urls)),
+    path(f'api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 ]
